@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><%= item.name %></h1>
+      <div class="header-actions">
+        <a href="/items/<%= item.id %>/edit" class="btn btn-secondary">Edit Item</a>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <dl>
+        <dt>SKU</dt>
+        <dd><%= item.sku %></dd>
+
+        <dt>Category</dt>
+        <dd>
+          <% if (item.categorySlug) { %>
+            <a href="/categories/<%= item.categorySlug %>"><%= item.categoryName %></a>
+          <% } else { %>
+            -
+          <% } %>
+        </dd>
+
+        <dt>Price</dt>
+        <dd>$<%= (item.priceCents / 100).toFixed(2) %></dd>
+
+        <dt>Quantity</dt>
+        <dd><%= item.quantity %></dd>
+
+        <dt>Status</dt>
+        <dd>
+          <span class="badge badge-<%= item.status === 'active' ? 'success' : 'secondary' %>">
+            <%= item.status %>
+          </span>
+        </dd>
+
+        <% if (item.description) { %>
+          <dt>Description</dt>
+          <dd><%= item.description %></dd>
+        <% } %>
+
+        <% if (item.imageUrl) { %>
+          <dt>Image</dt>
+          <dd><img src="<%= item.imageUrl %>" alt="<%= item.name %>" class="item-image"></dd>
+        <% } %>
+
+        <dt>Created</dt>
+        <dd><%= new Date(item.createdAt).toLocaleDateString() %></dd>
+
+        <dt>Last Updated</dt>
+        <dd><%= new Date(item.updatedAt).toLocaleDateString() %></dd>
+      </dl>
+    </div>
+  </div>
+
+<%- include('../partials/footer') %>

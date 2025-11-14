@@ -1,4 +1,4 @@
-const { categories, items } = require("../db");
+const { categories, items } = require("../db/index");
 
 function handleError(res, err, redirect = "/categories/new") {
     console.error(err);

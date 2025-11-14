@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>All Items</h1>
+      <a href="/items/new" class="btn btn-primary">New Item</a>
+    </div>
+
+    <% if (items && items.length > 0) { %>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(item => { %>
+            <tr>
+              <td><a href="/items/<%= item.id %>"><%= item.name %></a></td>
+              <td><%= item.sku %></td>
+              <td>
+                <% if (item.categorySlug) { %>
+                  <a href="/categories/<%= item.categorySlug %>"><%= item.categoryName %></a>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td>$<%= (item.priceCents / 100).toFixed(2) %></td>
+              <td><%= item.quantity %></td>
+              <td>
+                <span class="badge badge-<%= item.status === 'active' ? 'success' : 'secondary' %>">
+                  <%= item.status %>
+                </span>
+              </td>
+              <td class="actions">
+                <a href="/items/<%= item.id %>" class="btn btn-sm">View</a>
+                <a href="/items/<%= item.id %>/edit" class="btn btn-sm">Edit</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <p>No items found. <a href="/items/new">Create one</a>!</p>
+      </div>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

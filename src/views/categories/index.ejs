@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>All Categories</h1>
+      <a href="/categories/new" class="btn btn-primary">New Category</a>
+    </div>
+
+    <% if (categories && categories.length > 0) { %>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Items</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categories.forEach(category => { %>
+            <tr>
+              <td><a href="/categories/<%= category.slug %>"><%= category.name %></a></td>
+              <td><%= category.description || '-' %></td>
+              <td><%= category.itemCount || 0 %></td>
+              <td class="actions">
+                <a href="/categories/<%= category.slug %>" class="btn btn-sm">View</a>
+                <a href="/categories/<%= category.slug %>/edit" class="btn btn-sm">Edit</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <p>No categories found. <a href="/categories/new">Create one</a>!</p>
+      </div>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>

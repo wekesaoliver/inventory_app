@@ -1,7 +1,7 @@
 const categories = require("./queries/categories");
 const items = require("./queries/items");
 
-modules.exports = {
+module.exports = {
     categories,
     items,
 };

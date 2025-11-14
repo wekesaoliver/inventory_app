@@ -1,0 +1,32 @@
+<%- include('partials/header') %>
+
+  <div class="container">
+    <h1>Inventory Home</h1>
+    <p class="subtitle">Select a category to view its items</p>
+
+    <% if (categories && categories.length > 0) { %>
+      <div class="category-grid">
+        <% categories.forEach(category => { %>
+          <div class="category-card">
+            <h2><a href="/categories/<%= category.slug %>"><%= category.name %></a></h2>
+            <% if (category.description) { %>
+              <p class="description"><%= category.description %></p>
+            <% } %>
+            <div class="meta">
+              <span class="item-count"><%= category.itemCount || 0 %> item(s)</span>
+            </div>
+            <div class="actions">
+              <a href="/categories/<%= category.slug %>" class="btn btn-primary">View Items</a>
+              <a href="/categories/<%= category.slug %>/edit" class="btn btn-secondary">Edit</a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <p>No categories yet. <a href="/categories/new">Create your first category</a>!</p>
+      </div>
+    <% } %>
+  </div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><%= category.name %></h1>
+      <div class="header-actions">
+        <a href="/categories/<%= category.slug %>/edit" class="btn btn-secondary">Edit Category</a>
+        <a href="/items/new?categoryId=<%= category.id %>" class="btn btn-primary">Add Item</a>
+      </div>
+    </div>
+
+    <% if (category.description) { %>
+      <p class="description"><%= category.description %></p>
+    <% } %>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul>
+          <% errors.forEach(error => { %>
+            <li><%= error %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <h2>Items in this Category</h2>
+
+    <% if (items && items.length > 0) { %>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(item => { %>
+            <tr>
+              <td><a href="/items/<%= item.id %>"><%= item.name %></a></td>
+              <td><%= item.sku %></td>
+              <td>$<%= (item.priceCents / 100).toFixed(2) %></td>
+              <td><%= item.quantity %></td>
+              <td>
+                <span class="badge badge-<%= item.status === 'active' ? 'success' : 'secondary' %>">
+                  <%= item.status %>
+                </span>
+              </td>
+              <td class="actions">
+                <a href="/items/<%= item.id %>" class="btn btn-sm">View</a>
+                <a href="/items/<%= item.id %>/edit" class="btn btn-sm">Edit</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <p>No items in this category yet. <a href="/items/new?categoryId=<%= category.id %>">Add the first item</a>!</p>
+      </div>
+    <% } %>
+  </div>
+
+<%- include('../partials/footer') %>
