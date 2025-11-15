@@ -1,4 +1,5 @@
 const { categories, items } = require("../db/index");
+const requireAdminPassword = require("../middleware/adminAuth");
 
 function handleError(res, err, redirect = "/categories/new") {
     console.error(err);
@@ -13,7 +14,7 @@ function handleError(res, err, redirect = "/categories/new") {
 exports.list = async (req, res, next) => {
     try {
         const allCategories = await categories.getAllCategories();
-        res.render("Categories/index", {
+        res.render("categories/index", {
             title: "Categories",
             categories: allCategories,
         });
@@ -101,7 +102,7 @@ exports.editForm = async (req, res, next) => {
     }
 };
 
-exports.update = async (req, res) => {
+exports.update = [requireAdminPassword, async (req, res) => {
     const payload = {
         name: req.body.name,
         description: req.body.description,
@@ -151,21 +152,38 @@ exports.update = async (req, res) => {
         }
         return handleError(res, err, `/categories/${req.params.slug}/edit`);
     }
-};
+}];
 
-exports.destroy = async (req, res, next) => {
+exports.deleteForm = async (req, res, next) => {
     try {
         const category = await categories.getCategoryBySlug(req.params.slug);
         if (!category) {
-            return res
-                .status(404)
-                .render("404", { title: "Category Not Found" });
+            return res.status(404).render("404", { title: "Category Not Found" });
+        }
+
+        const categoryItems = await items.getItemsByCategoryId(category.id);
+        res.render("categories/delete", {
+            title: `Delete ${category.name}`,
+            category,
+            items: categoryItems,
+            errors: [],
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.destroy = [requireAdminPassword, async (req, res, next) => {
+    try {
+        const category = await categories.getCategoryBySlug(req.params.slug);
+        if (!category) {
+            return res.status(404).render("404", { title: "Category Not Found" });
         }
 
         const categoryItems = await items.getItemsByCategoryId(category.id);
         if (categoryItems.length > 0) {
-            return res.status(400).render("categories/show", {
-                title: category.name,
+            return res.status(400).render("categories/delete", {
+                title: `Delete ${category.name}`,
                 category,
                 items: categoryItems,
                 errors: [
@@ -178,4 +196,4 @@ exports.destroy = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}];

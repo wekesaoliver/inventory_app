@@ -3,7 +3,7 @@ const pool = require("../pool");
 const mapItem = (row) => ({
     id: row.id,
     categoryId: row.category_id,
-    categoryName: row.categoryName ?? null,
+    categoryName: row.category_name ?? null,
     categorySlug: row.category_slug ?? null,
     name: row.name,
     sku: row.sku,
@@ -11,7 +11,7 @@ const mapItem = (row) => ({
     priceCents: row.price_cents,
     quantity: row.quantity,
     status: row.status,
-    imageUrl: row.imageurl,
+    imageUrl: row.image_url,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
 });

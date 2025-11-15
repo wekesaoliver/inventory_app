@@ -6,6 +6,7 @@ const router = express.Router();
 router.get("/", itemController.list);
 router.get("/new", itemController.newForm);
 router.post("/", itemController.create);
+router.get("/:id/delete", itemController.deleteForm);
 router.get("/:id", itemController.show);
 router.get("/:id/edit", itemController.editForm);
 router.put("/:id", itemController.update);

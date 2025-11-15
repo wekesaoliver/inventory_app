@@ -1,9 +1,68 @@
-<!DOCTYPE html>
-<html>
-  <head><title><%= title %></title></head>
-  <body>
-    <h1><%= title %></h1>
-    <p>TODO: build this view.</p>
-    <pre><%= JSON.stringify(categories || items || item || category || {}, null, 2) %></pre>
-  </body>
-</html>
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><%= action === 'edit' ? 'Edit Category' : 'Create Category' %></h1>
+      <a href="<%= action === 'edit' ? '/categories/' + category.slug : '/categories' %>" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul>
+          <% errors.forEach(error => { %>
+            <li><%= error %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form method="POST" action="<%= action === 'edit' ? '/categories/' + category.slug + '?_method=PUT' : '/categories' %>" class="form-card">
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="<%= typeof category.name !== 'undefined' ? category.name : '' %>"
+          required
+          class="form-control"
+        >
+        <small class="form-help">Category name must be unique</small>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          class="form-control"
+        ><%= typeof category.description !== 'undefined' ? category.description : '' %></textarea>
+        <small class="form-help">Optional description for this category</small>
+      </div>
+
+      <% if (action === 'edit') { %>
+        <div class="form-group">
+          <label for="adminPassword">Admin Password *</label>
+          <input
+            type="password"
+            id="adminPassword"
+            name="adminPassword"
+            required
+            class="form-control"
+            placeholder="Enter admin password to confirm changes"
+          >
+          <small class="form-help">Required for updating categories</small>
+        </div>
+      <% } %>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <%= action === 'edit' ? 'Update Category' : 'Create Category' %>
+        </button>
+        <a href="<%= action === 'edit' ? '/categories/' + category.slug : '/categories' %>" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+<%- include('../partials/footer') %>

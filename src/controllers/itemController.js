@@ -1,4 +1,5 @@
 const { categories, items } = require("../db");
+const requireAdminPassword = require("../middleware/adminAuth");
 
 function validateItem(payload) {
     const errors = [];
@@ -55,10 +56,11 @@ exports.newForm = async (req, res, next) => {
         const allCategories = await categories.getAllCategories();
         res.render("items/form", {
             title: "Create Item",
-            item: {},
+            item: { categoryId: req.query.categoryId || null },
             categories: allCategories,
             errors: [],
             action: "create",
+            req: req, // Pass req so form can access query params
         });
     } catch (err) {
         next(err);
@@ -120,72 +122,97 @@ exports.editForm = async (req, res, next) => {
             categories: allCategories,
             errors: [],
             action: "edit",
+            req: req,
         });
     } catch (err) {
         next(err);
     }
 };
 
-exports.update = async (req, res, next) => {
-    const payload = {
-        categoryId: req.body.categoryId,
-        name: req.body.name,
-        sku: req.body.sku,
-        description: req.body.description,
-        priceCents: math.round(parseFloat(req.body.price || "0") * 100),
-        quantity: parseInt(req.body.quantity, 10),
-        status: req.body.status || "active",
-        imageUrl: req.body.imageUrl,
-    };
-    const errors = validateItem(payload);
-    if (errors.length > 0) {
-        const allCategories = await categories.getAllCategories();
-        return res.status(422).render("items/form", {
-            title: "Update Item",
-            item: { ...payload, id: req.params.id },
-            categories: allCategories,
-            errors,
-            action: "edit",
-        });
-    }
-
+exports.deleteForm = async (req, res, next) => {
     try {
-        const updated = await items.updateItem(req.params.id, payload);
-        if (!updated) {
-            return res.status(400).render("items/form", {
-                title: "Update Item",
-                item: { ...payload, id: req.params.id },
-                categories: await categories.getAllCategories(),
-                errors: ["Unable to update item."],
-                action: "edit",
-            });
-        }
-        res.redirect(`/items/${updated.id}`);
-    } catch (err) {
-        if (err.code === "23505") {
-            const allCategories = await categories.getAllCategories();
-            return res.status(409).render("items/form", {
-                title: "Update Item",
-                item: { ...payload, id: req.params.id },
-                categories: allCategories,
-                errors: ["SKU must be unique."],
-                action: "edit",
-            });
-        }
-        next(err);
-    }
-};
-
-exports.destroy = async (req, res, next) => {
-    try {
-        const item = await items.getItemsById(req.params.id);
+        const item = await items.getItemById(req.params.id);
         if (!item) {
             return res.status(404).render("404", { title: "Item Not Found" });
         }
-
-        await items.deleteItem(item.id);
-        res.redirect(`/categories/${item.categorySlug}`);
+        res.render("items/delete", {
+            title: `Delete ${item.name}`,
+            item,
+            errors: [],
+        });
     } catch (err) {
         next(err);
     }
 };
+
+exports.update = [
+    requireAdminPassword,
+    async (req, res, next) => {
+        const payload = {
+            categoryId: req.body.categoryId,
+            name: req.body.name,
+            sku: req.body.sku,
+            description: req.body.description,
+            priceCents: Math.round(parseFloat(req.body.price || "0") * 100),
+            quantity: parseInt(req.body.quantity, 10),
+            status: req.body.status || "active",
+            imageUrl: req.body.imageUrl,
+        };
+        const errors = validateItem(payload);
+        if (errors.length > 0) {
+            const allCategories = await categories.getAllCategories();
+            return res.status(422).render("items/form", {
+                title: "Update Item",
+                item: { ...payload, id: req.params.id },
+                categories: allCategories,
+                errors,
+                action: "edit",
+            });
+        }
+
+        try {
+            const updated = await items.updateItem(req.params.id, payload);
+            if (!updated) {
+                return res.status(400).render("items/form", {
+                    title: "Update Item",
+                    item: { ...payload, id: req.params.id },
+                    categories: await categories.getAllCategories(),
+                    errors: ["Unable to update item."],
+                    action: "edit",
+                });
+            }
+            res.redirect(`/items/${updated.id}`);
+        } catch (err) {
+            if (err.code === "23505") {
+                const allCategories = await categories.getAllCategories();
+                return res.status(409).render("items/form", {
+                    title: "Update Item",
+                    item: { ...payload, id: req.params.id },
+                    categories: allCategories,
+                    errors: ["SKU must be unique."],
+                    action: "edit",
+                });
+            }
+            next(err);
+        }
+    },
+];
+
+exports.destroy = [
+    requireAdminPassword,
+    async (req, res, next) => {
+        try {
+            const item = await items.getItemsById(req.params.id);
+            if (!item) {
+                return res
+                    .status(404)
+                    .render("404", { title: "Item Not Found" });
+            }
+
+            await items.deleteItem(item.id);
+            res.redirect(`/categories/${item.categorySlug}`);
+        } catch (err) {
+            next(err);
+        }
+    },
+];

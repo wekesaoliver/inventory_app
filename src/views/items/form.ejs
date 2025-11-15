@@ -1,9 +1,161 @@
-<!DOCTYPE html>
-<html>
-  <head><title><%= title %></title></head>
-  <body>
-    <h1><%= title %></h1>
-    <p>TODO: build this view.</p>
-    <pre><%= JSON.stringify(categories || items || item || category || {}, null, 2) %></pre>
-  </body>
-</html>
+<%- include('../partials/header') %>
+
+  <div class="container">
+    <div class="page-header">
+      <h1><%= action === 'edit' ? 'Edit Item' : 'Create Item' %></h1>
+      <a href="<%= action === 'edit' ? '/items/' + item.id : '/items' %>" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div class="alert alert-error">
+        <ul>
+          <% errors.forEach(error => { %>
+            <li><%= error %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form method="POST" action="<%= action === 'edit' ? '/items/' + item.id + '?_method=PUT' : '/items' %>" class="form-card">
+      <div class="form-group">
+        <label for="name">Name *</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="<%= typeof item.name !== 'undefined' ? item.name : '' %>"
+          required
+          class="form-control"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="sku">SKU *</label>
+        <input
+          type="text"
+          id="sku"
+          name="sku"
+          value="<%= typeof item.sku !== 'undefined' ? item.sku : '' %>"
+          required
+          class="form-control"
+        >
+        <small class="form-help">Stock Keeping Unit - must be unique</small>
+      </div>
+
+      <div class="form-group">
+        <label for="categoryId">Category *</label>
+        <select
+          id="categoryId"
+          name="categoryId"
+          required
+          class="form-control"
+        >
+          <option value="">Select a category</option>
+          <% if (categories && categories.length > 0) { %>
+            <% categories.forEach(cat => { %>
+              <%
+                const isSelected = (typeof item.categoryId !== 'undefined' && item.categoryId === cat.id) ||
+                                   (typeof req !== 'undefined' && req.query && req.query.categoryId === cat.id);
+              %>
+              <option value="<%= cat.id %>" <%= isSelected ? 'selected' : '' %>>
+                <%= cat.name %>
+              </option>
+            <% }); %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="price">Price ($) *</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            min="0"
+            value="<%= typeof item.priceCents !== 'undefined' ? (item.priceCents / 100).toFixed(2) : '' %>"
+            required
+            class="form-control"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="quantity">Quantity *</label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            min="0"
+            value="<%= typeof item.quantity !== 'undefined' ? item.quantity : '0' %>"
+            required
+            class="form-control"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status *</label>
+        <select
+          id="status"
+          name="status"
+          required
+          class="form-control"
+        >
+          <option value="active" <%= typeof item.status !== 'undefined' && item.status === 'active' ? 'selected' : '' %>>
+            Active
+          </option>
+          <option value="archived" <%= typeof item.status !== 'undefined' && item.status === 'archived' ? 'selected' : '' %>>
+            Archived
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          class="form-control"
+        ><%= typeof item.description !== 'undefined' ? item.description : '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input
+          type="url"
+          id="imageUrl"
+          name="imageUrl"
+          value="<%= typeof item.imageUrl !== 'undefined' ? item.imageUrl : '' %>"
+          class="form-control"
+          placeholder="https://example.com/image.jpg"
+        >
+        <small class="form-help">Optional image URL for this item</small>
+      </div>
+
+      <% if (action === 'edit') { %>
+        <div class="form-group">
+          <label for="adminPassword">Admin Password *</label>
+          <input
+            type="password"
+            id="adminPassword"
+            name="adminPassword"
+            required
+            class="form-control"
+            placeholder="Enter admin password to confirm changes"
+          >
+          <small class="form-help">Required for updating items</small>
+        </div>
+      <% } %>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <%= action === 'edit' ? 'Update Item' : 'Create Item' %>
+        </button>
+        <a href="<%= action === 'edit' ? '/items/' + item.id : '/items' %>" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+<%- include('../partials/footer') %>
