@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: inventory-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inventory-db
+          property: connectionString
+      - key: PGUSER
+        fromDatabase:
+          name: inventory-db
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: inventory-db
+          property: password
+      - key: PGHOST
+        fromDatabase:
+          name: inventory-db
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: inventory-db
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: inventory-db
+          property: database
+
+databases:
+  - name: inventory-db
+    plan: free
+    databaseName: inventory
+    user: inventory_user
